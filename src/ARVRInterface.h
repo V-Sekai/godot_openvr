@@ -7,6 +7,7 @@
 #include "GodotCalls.h"
 #include "OVRCalls.h"
 #include "OS.h"
+#include "blit_shader.h"
 
 extern const godot_arvr_interface_gdnative interface_struct;
 

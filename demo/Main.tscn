@@ -103,6 +103,7 @@ flags_use_point_size = false
 flags_world_triplanar = false
 flags_fixed_size = false
 flags_albedo_tex_force_srgb = false
+flags_do_not_receive_shadows = false
 vertex_color_use_as_albedo = false
 vertex_color_is_srgb = false
 params_diffuse_mode = 1
@@ -147,6 +148,8 @@ _sections_unfolded = [ "Albedo" ]
 [sub_resource type="PlaneMesh" id=4]
 
 material = SubResource( 3 )
+custom_aabb = AABB( 0, 0, 0, 0, 0, 0 )
+flip_faces = false
 size = Vector2( 10, 10 )
 subdivide_width = 10
 subdivide_depth = 10
@@ -156,15 +159,12 @@ subdivide_depth = 10
 plane = Plane( 0, 1, 0, 0 )
 
 [node name="Main" type="Spatial" index="0"]
-
 script = ExtResource( 1 )
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="." index="0"]
-
 environment = SubResource( 2 )
 
 [node name="DirectionalLight" type="DirectionalLight" parent="." index="1"]
-
 transform = Transform( 0.623013, -0.733525, 0.271654, 0.321394, 0.55667, 0.766044, -0.713134, -0.389948, 0.582563, 0, 100, 0 )
 layers = 1
 light_color = Color( 1, 1, 1, 1 )
@@ -192,7 +192,6 @@ directional_shadow_max_distance = 200.0
 _sections_unfolded = [ "Transform" ]
 
 [node name="StaticBody" type="StaticBody" parent="." index="2"]
-
 input_ray_pickable = true
 input_capture_on_drag = false
 collision_layer = 1
@@ -203,7 +202,6 @@ constant_linear_velocity = Vector3( 0, 0, 0 )
 constant_angular_velocity = Vector3( 0, 0, 0 )
 
 [node name="Ground" type="MeshInstance" parent="StaticBody" index="0"]
-
 transform = Transform( 100, 0, 0, 0, 100, 0, 0, 0, 100, 0, 0, 0 )
 layers = 1
 material_override = null
@@ -220,14 +218,12 @@ material/0 = null
 _sections_unfolded = [ "Transform" ]
 
 [node name="CollisionShape" type="CollisionShape" parent="StaticBody" index="1"]
-
 shape = SubResource( 5 )
 disabled = false
 
 [node name="Table" parent="." index="3" instance=ExtResource( 3 )]
 
 [node name="Test" type="MeshInstance" parent="." index="4"]
-
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.63647, -1.15364 )
 layers = 1
 material_override = null
@@ -244,12 +240,9 @@ skeleton = NodePath("..")
 [node name="OVRFirstPerson" parent="." index="5" instance=ExtResource( 4 )]
 
 [node name="Function_Teleport" parent="OVRFirstPerson/Left_Hand" index="1" instance=ExtResource( 5 )]
-
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0 )
 origin = NodePath("../..")
 
 [node name="Function_Direct_movement" parent="OVRFirstPerson/Right_Hand" index="1" instance=ExtResource( 6 )]
-
 origin = NodePath("../..")
 camera = NodePath("../../ARVRCamera")
 

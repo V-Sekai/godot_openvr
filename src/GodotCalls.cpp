@@ -37,6 +37,10 @@ void GDN_EXPORT godot_openvr_gdnative_init(godot_gdnative_init_options *p_option
 			default: break;
 		};
 	};
+
+	if (!gladLoadGL()) {
+		printf("Error initializing GLAD\n");
+	}
 }
 
 void GDN_EXPORT godot_openvr_gdnative_terminate(godot_gdnative_terminate_options *p_options) {
