@@ -11,7 +11,9 @@
 #include "OVRCalls.h"
 	
 #include "ARVRInterface.h"
+
 #include "OVRRenderModel.h"
+#include "OVRComponentTree.h"
 
 #ifdef __cplusplus
 extern "C" {

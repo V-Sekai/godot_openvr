@@ -67,6 +67,7 @@ enum PrimitiveType {
 extern "C" {
 #endif
 
+godot_object *ArrayMesh_new();
 int64_t ArrayMesh_get_surface_count(godot_object *p_this);
 void ArrayMesh_surface_remove(godot_object *p_this, const int64_t surf_idx);
 void ArrayMesh_add_surface_from_arrays(godot_object *p_this, const int64_t primitive, const godot_array& arrays, const godot_array& blend_shapes, const int64_t compress_flags);

@@ -45,6 +45,20 @@ void GDN_EXPORT godot_openvr_gdnative_terminate(godot_gdnative_terminate_options
 	arvr_api = NULL;
 }
 
+void ___godot_icall_void(godot_method_bind *mb, godot_object *inst) {
+	const void *args[1] = {};
+
+	api->godot_method_bind_ptrcall(mb, inst, args, nullptr);
+}
+
+bool ___godot_icall_bool(godot_method_bind *mb, godot_object *inst) {
+	bool ret;
+	const void *args[1] = {};
+
+	api->godot_method_bind_ptrcall(mb, inst, args, &ret);
+	return ret;
+}
+
 int64_t ___godot_icall_int(godot_method_bind *mb, godot_object *inst) {
 	int64_t ret;
 	const void *args[1] = {
@@ -90,6 +104,39 @@ void ___godot_icall_void_Color(godot_method_bind *mb, godot_object *inst, const 
 	api->godot_method_bind_ptrcall(mb, inst, args, nullptr);
 }
 
+void ___godot_icall_void_Transform(godot_method_bind *mb, godot_object *inst, const godot_transform &arg0) {
+	const void *args[] = {
+		(void *)&arg0,
+	};
+
+	api->godot_method_bind_ptrcall(mb, inst, args, nullptr);
+}
+
+void ___godot_icall_void_String(godot_method_bind *mb, godot_object *inst, const godot_string *arg0) {
+	const void *args[] = {
+		(void *)arg0,
+	};
+
+	api->godot_method_bind_ptrcall(mb, inst, args, nullptr);
+}
+
+void ___godot_icall_void_Object(godot_method_bind *mb, godot_object *inst, const godot_object *arg0) {
+	const void *args[] = {
+		(void *)arg0,
+	};
+
+	api->godot_method_bind_ptrcall(mb, inst, args, nullptr);
+}
+
+void ___godot_icall_void_Object_bool(godot_method_bind *mb, godot_object *inst, const godot_object *arg0, const bool arg1) {
+	const void *args[] = {
+		(void *)arg0,
+		(void *)&arg1,
+	};
+
+	api->godot_method_bind_ptrcall(mb, inst, args, nullptr);
+}
+
 void ___godot_icall_void_Object_int(godot_method_bind *mb, godot_object *inst, const godot_object *arg0, const int arg1) {
 	const void *args[] = {
 		(void *) arg0,
@@ -115,6 +162,25 @@ godot_vector2 ___godot_icall_Vector2_int(godot_method_bind *mb, godot_object *in
 	godot_vector2 ret;
 	const void *args[] = {
 		(void *) &arg0,
+	};
+
+	api->godot_method_bind_ptrcall(mb, inst, args, &ret);
+	return ret;
+}
+
+godot_string ___godot_icall_String(godot_method_bind *mb, godot_object *inst) {
+	godot_string ret;
+	const void *args[1] = {};
+
+	api->godot_method_bind_ptrcall(mb, inst, args, &ret);
+	return ret;
+}
+
+godot_object *___godot_icall_Object_int(godot_method_bind *mb, godot_object *inst, const int arg0) {
+	godot_object *ret;
+	ret = nullptr;
+	const void *args[] = {
+		(void *)&arg0,
 	};
 
 	api->godot_method_bind_ptrcall(mb, inst, args, &ret);

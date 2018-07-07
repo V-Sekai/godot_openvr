@@ -7,6 +7,9 @@
 #include "GodotCalls.h"
 #include "OVRCalls.h"
 
+bool render_model_exists(openvr_data_struct *ovr, godot_string *render_model_name);
+bool load_render_model(openvr_data_struct *ovr, godot_string *render_model_name, godot_object *p_array_mesh, godot_dictionary *p_material_dictionary);
+
 #ifdef __cplusplus
 extern "C" {
 #endif

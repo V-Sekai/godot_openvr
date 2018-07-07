@@ -8,6 +8,11 @@
 
 #include "ArrayMesh.h"
 
+godot_object *ArrayMesh_new() {
+	return api->godot_get_class_constructor((char *)"ArrayMesh")();
+};
+
+
 int64_t ArrayMesh_get_surface_count(godot_object *p_this) {
 	static godot_method_bind *mb = NULL;
 	if (mb == NULL) {
