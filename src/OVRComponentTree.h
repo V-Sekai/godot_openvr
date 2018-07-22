@@ -15,6 +15,7 @@ GDCALLINGCONV void *openvr_component_tree_constructor(godot_object *p_instance, 
 GDCALLINGCONV void openvr_component_tree_destructor(godot_object *p_instance, void *p_method_data, void *p_user_data);
 GDCALLINGCONV godot_variant openvr_component_tree_load(godot_object *p_instance, void *p_method_data, void *p_user_data, int p_num_args, godot_variant **p_args);
 GDCALLINGCONV godot_variant openvr_component_tree_update(godot_object *p_instance, void *p_method_data, void *p_user_data, int p_num_args, godot_variant **p_args);
+GDCALLINGCONV godot_variant openvr_component_set_device_index(godot_object *p_instance, void *p_method_data, void *p_user_data, int p_num_args, godot_variant **p_args);
 
 #ifdef __cplusplus
 }

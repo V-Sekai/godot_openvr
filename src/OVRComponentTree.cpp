@@ -19,6 +19,7 @@ typedef struct component_tree_data_struct {
 	openvr_data_struct *ovr;
 	godot_string render_model_name_real;
 	godot_string *render_model_name;
+	uint32_t device_index;
 } component_tree_data_struct;
 
 GDCALLINGCONV void *openvr_component_tree_constructor(godot_object *p_instance, void *p_method_data) {
@@ -31,6 +32,7 @@ GDCALLINGCONV void *openvr_component_tree_constructor(godot_object *p_instance, 
 	if (component_tree_data != NULL) {
 		component_tree_data->ovr = openvr_get_data();
 		component_tree_data->render_model_name = NULL;
+		component_tree_data->device_index = -1;
 	}
 
 	return component_tree_data;
@@ -201,6 +203,12 @@ GDCALLINGCONV godot_variant openvr_component_tree_update(godot_object *p_instanc
 			const char *render_model_name_ptr = api->godot_char_string_get_data(&render_model_cs);
 
 			if (Node_is_inside_tree(p_instance)) {
+
+				vr::VRControllerState_t controller_state;
+				if (component_tree_data->device_index != -1) {
+					//component_tree_data->ovr->hmd->GetControllerState(component_tree_data->device_index, &controller_state, sizeof(vr::VRControllerState_t));
+				}
+
 				int64_t child_count = Node_get_child_count(p_instance);
 				for (int i = 0; i < child_count; i++) {
 					godot_object *child = NULL;
@@ -213,7 +221,6 @@ GDCALLINGCONV godot_variant openvr_component_tree_update(godot_object *p_instanc
 
 					uint32_t capacity = component_tree_data->ovr->render_models->GetComponentName(render_model_name_ptr, i, NULL, 0);
 					if (capacity != 0) {
-						vr::VRControllerState_t controller_state;
 						vr::RenderModel_ControllerMode_State_t controller_mode_state;
 						vr::RenderModel_ComponentState_t component_state;
 
@@ -221,10 +228,10 @@ GDCALLINGCONV godot_variant openvr_component_tree_update(godot_object *p_instanc
 						if (component_tree_data->ovr->render_models->GetComponentState(render_model_name_ptr, api->godot_char_string_get_data(&node_name_cs), &controller_state, &controller_mode_state, &component_state) == true) {
 							godot_transform component_render_model_transform;
 
-							api->godot_transform_new_identity(&component_render_model_transform);
-							openvr_transform_from_matrix(&component_render_model_transform, &component_state.mTrackingToComponentRenderModel, 1.0f);
+							//api->godot_transform_new_identity(&component_render_model_transform);
+							//openvr_transform_from_matrix(&component_render_model_transform, &component_state.mTrackingToComponentRenderModel, 1.0f);
 
-							Spatial_set_transform(child, component_render_model_transform);
+							//Spatial_set_transform(child, component_render_model_transform);
 
 							if (Node_get_child_count(child) > 0) {
 								godot_object *child_attachment = NULL;
@@ -253,6 +260,20 @@ GDCALLINGCONV godot_variant openvr_component_tree_update(godot_object *p_instanc
 			api->godot_char_string_destroy(&render_model_cs);
 		};
 	};
+
+	api->godot_variant_new_nil(&ret);
+	return ret;
+}
+
+GDCALLINGCONV godot_variant openvr_component_set_device_index(godot_object *p_instance, void *p_method_data, void *p_user_data, int p_num_args, godot_variant **p_args) {
+	godot_variant ret;
+
+	if (p_user_data != NULL) {
+		component_tree_data_struct *component_tree_data = (component_tree_data_struct *)p_user_data;
+		if (p_num_args > 0) {
+			component_tree_data->device_index = api->godot_variant_as_int(p_args[0]);
+		}
+	}
 
 	api->godot_variant_new_nil(&ret);
 	return ret;
