@@ -364,7 +364,9 @@ void godot_arvr_process(void *p_data) {
 							// If the button being pressed is the trigger, reassign it to button 15
 							button = 15;
 						}
-						godot::arvr_api->godot_arvr_set_controller_button(arvr_data->trackers[event.trackedDeviceIndex], button, true);
+						if (event.trackedDeviceIndex != 0) {
+							godot::arvr_api->godot_arvr_set_controller_button(arvr_data->trackers[event.trackedDeviceIndex], button, true);
+						}
 					}
 				}; break;
 				case vr::VREvent_ButtonUnpress: {
@@ -376,7 +378,9 @@ void godot_arvr_process(void *p_data) {
 						} else if (button == vr::k_EButton_SteamVR_Trigger) {
 							button = 15;
 						}
-						godot::arvr_api->godot_arvr_set_controller_button(arvr_data->trackers[event.trackedDeviceIndex], button, false);
+						if (event.trackedDeviceIndex != 0) {
+							godot::arvr_api->godot_arvr_set_controller_button(arvr_data->trackers[event.trackedDeviceIndex], button, false);
+						}
 					}
 				} break;
 				default: {
