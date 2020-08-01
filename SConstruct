@@ -1,5 +1,6 @@
 #!python
 import os
+import sys
 
 # Reads variables from an optional file.
 customs = ['../custom.py']
@@ -44,26 +45,55 @@ if env['platform'] == 'windows':
     env['target_path'] += 'win' + env['bits'] + '/'
     godot_cpp_library += '.windows'
     platform_dir = 'win'
-    if not env['use_llvm']:
-        # This makes sure to keep the session environment variables on windows,
-        # that way you can run scons in a vs 2017 prompt and it will find all the required tools
-        env.Append(ENV = os.environ)
 
+    # Try to detect the host platform automatically.
+    # This is used if no `platform` argument is passed
+    if sys.platform.startswith('linux'):
+        host_platform = 'linux'
+    elif sys.platform == 'darwin':
+        host_platform = 'osx'
+    elif sys.platform == 'win32' or sys.platform == 'msys':
+        host_platform = 'windows'
+    else:
+        raise ValueError(
+            'Could not detect host_platform automatically'
+        )
+
+    if host_platform == 'windows':
+        if not env['use_llvm']:
+            # This makes sure to keep the session environment variables on windows,
+            # that way you can run scons in a vs 2017 prompt and it will find all the required tools
+            env.Append(ENV = os.environ)
+        # MSVC
         env.Append(CCFLAGS = ['-DWIN32', '-D_WIN32', '-D_WINDOWS', '-W3', '-GR', '-D_CRT_SECURE_NO_WARNINGS'])
         if env['target'] in ('debug', 'd'):
             env.Append(CCFLAGS = ['-EHsc', '-D_DEBUG', '-MDd', '-Zi', '-FS'])
             env.Append(LINKFLAGS = ['-DEBUG:FULL'])
-        elif env['target'] in ('release_debug',):
+        else:
             env.Append(CCFLAGS = ['-O2', '-EHsc', '-DNDEBUG', '-MD', '-Zi', '-FS'])
             env.Append(LINKFLAGS = ['-DEBUG:FULL'])
-        else:
-            env.Append(CCFLAGS = ['-O2', '-EHsc', '-DNDEBUG', '-MD'])
-    # untested
-    else:
-        if env['target'] in ('debug', 'd'):
-            env.Append(CCFLAGS = ['-fPIC', '-g3','-Og', '-std=c++17'])
-        else:
-            env.Append(CCFLAGS = ['-fPIC', '-g','-O3', '-std=c++17'])
+
+    elif host_platform == 'linux' or host_platform == 'osx':
+        # Cross-compilation using MinGW
+        if env['bits'] == '64':
+            env['CXX'] = 'x86_64-w64-mingw32-g++'
+            env['AR'] = "x86_64-w64-mingw32-ar"
+            env['RANLIB'] = "x86_64-w64-mingw32-ranlib"
+            env['LINK'] = "x86_64-w64-mingw32-g++"
+        elif env['bits'] == '32':
+            env['CXX'] = 'i686-w64-mingw32-g++'
+            env['AR'] = "i686-w64-mingw32-ar"
+            env['RANLIB'] = "i686-w64-mingw32-ranlib"
+            env['LINK'] = "i686-w64-mingw32-g++"
+
+        # Native or cross-compilation using MinGW
+        env.Append(CCFLAGS=['-g', '-O3', '-std=c++14', '-Wwrite-strings'])
+        env.Append(LINKFLAGS=[
+            '--static',
+            '-Wl,--no-undefined',
+            '-static-libgcc',
+            '-static-libstdc++',
+        ])
 
 # untested
 elif env['platform'] == 'osx':
