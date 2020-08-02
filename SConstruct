@@ -94,6 +94,7 @@ if env['platform'] == 'windows':
             '-static-libgcc',
             '-static-libstdc++',
         ])
+        env['target_name'] += ".dll"
 
 # untested
 elif env['platform'] == 'osx':
