@@ -161,6 +161,8 @@ if (os.name == "nt" and os.getenv("VCINSTALLDIR")):
     env.Append(LINKFLAGS=['openvr_api.lib'])
 elif env['platform'] == "osx":
     env.Append(LINKFLAGS = ['-F' + env['openvr_path'] + 'bin/osx64', '-framework', 'OpenVR'])
+elif env['platform'] == "windows" and env['use_llvm']:
+    env.Append(LINKFLAGS=[env['openvr_path'] + 'lib/' + platform_dir + '/openvr_api.lib'])
 else:
     env.Append(LIBPATH=[env['openvr_path'] + 'lib/' + platform_dir])
     env.Append(LIBS=['openvr_api'])
