@@ -7,7 +7,8 @@ customs = ['../custom.py']
 opts = Variables(customs, ARGUMENTS)
 
 # Gets the standart flags CC, CCX, etc.
-env = DefaultEnvironment()
+# Workaround buggy handling of PATH environment
+env = Environment(ENV = os.environ)
 
 # Define our parameters
 opts.Add(EnumVariable('target', "Compilation target", 'release', ['d', 'debug', 'r', 'release', 'release_debug']))
@@ -86,6 +87,8 @@ if env['platform'] == 'windows':
             env["AR"] = mingw_prefix + "ar"
             env["RANLIB"] = mingw_prefix + "ranlib"
             env["LINK"] = mingw_prefix + "clang++"
+            env.Append(LINKFLAGS=["-Wl,-pdb="])
+            env.Append(CCFLAGS=["-gcodeview"])
         else:
             env["CC"] = mingw_prefix + "gcc"
             env["AS"] = mingw_prefix + "as"
@@ -93,12 +96,12 @@ if env['platform'] == 'windows':
             env["AR"] = mingw_prefix + "gcc-ar"
             env["RANLIB"] = mingw_prefix + "gcc-ranlib"
             env["LINK"] = mingw_prefix + "g++"
+        env["SHCCFLAGS"] = '$CCFLAGS'
 
         # Native or cross-compilation using MinGW
         env.Append(CCFLAGS=['-g', '-O3', '-std=c++14', '-Wwrite-strings'])
         env.Append(LINKFLAGS=[
             '--static',
-            '-Wl,--no-undefined',
             '-static-libgcc',
             '-static-libstdc++',
         ])
