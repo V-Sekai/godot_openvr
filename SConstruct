@@ -56,7 +56,7 @@ if env['platform'] == 'windows':
         elif env['target'] in ('release_debug',):
             env.Append(CCFLAGS = ['-O2', '-EHsc', '-DNDEBUG', '-MD', '-Zi', '-FS'])
             env.Append(LINKFLAGS = ['-DEBUG:FULL'])
-		else:
+        else:
             env.Append(CCFLAGS = ['-O2', '-EHsc', '-DNDEBUG', '-MD'])
     # untested
     else:
