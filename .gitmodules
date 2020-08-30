@@ -1,6 +1,3 @@
 [submodule "openvr"]
 	path = openvr
 	url = https://github.com/ValveSoftware/openvr
-[submodule "godot-cpp"]
-	path = godot-cpp
-	url = https://github.com/GodotNativeTools/godot-cpp
