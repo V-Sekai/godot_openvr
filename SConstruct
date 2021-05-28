@@ -22,7 +22,7 @@ opts.Add(BoolVariable('use_llvm', "Use the LLVM / Clang compiler", 'no'))
 opts.Add(EnumVariable('bits', "CPU architecture", '64', ['32', '64']))
 
 # Other needed paths
-godot_headers_path = "godot-cpp/godot_headers/"
+godot_headers_path = "godot-cpp/godot-headers/"
 godot_cpp_path = "godot-cpp/"
 godot_cpp_library = "libgodot-cpp"
 
