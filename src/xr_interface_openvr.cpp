@@ -235,6 +235,15 @@ int64_t XRInterfaceOpenVR::_get_tracking_status() const {
 }
 
 ////////////////////////////////////////////////////////////////
+// Issue a haptic pulse
+void XRInterfaceOpenVR::_trigger_haptic_pulse(const String &action_name, const StringName &tracker_name, double frequency, double amplitude, double duration_sec, double delay_sec) {
+	if (ovr != nullptr && ovr->is_initialised()) {
+		String tname = tracker_name;
+		ovr->trigger_haptic_pulse(action_name.utf8().get_data(), tname.utf8().get_data(), frequency, amplitude, duration_sec, delay_sec);
+	}
+}
+
+////////////////////////////////////////////////////////////////
 // Returns the requested size of our render target
 // called right before rendering, if the size changes a new
 // render target will be constructed.
@@ -264,7 +273,11 @@ Transform3D XRInterfaceOpenVR::_get_camera_transform() {
 	if (ovr == nullptr || xr_server == nullptr) {
 		return Transform3D();
 	}
-	return xr_server->get_reference_frame() * ovr->get_hmd_transform();
+
+	Transform3D hmd_transform = ovr->get_hmd_transform();
+	hmd_transform.origin *= xr_server->get_world_scale();
+
+	return xr_server->get_reference_frame() * hmd_transform;
 }
 
 ////////////////////////////////////////////////////////////////
@@ -278,7 +291,10 @@ Transform3D XRInterfaceOpenVR::_get_transform_for_view(int64_t p_view, const Tra
 
 	Transform3D transform_for_view = ovr->get_eye_to_head_transform(p_view, world_scale);
 
-	return p_cam_transform * xr_server->get_reference_frame() * ovr->get_hmd_transform() * transform_for_view;
+	Transform3D hmd_transform = ovr->get_hmd_transform();
+	hmd_transform.origin *= world_scale;
+
+	return p_cam_transform * xr_server->get_reference_frame() * hmd_transform * transform_for_view;
 }
 
 ////////////////////////////////////////////////////////////////

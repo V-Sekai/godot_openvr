@@ -4,9 +4,10 @@ entry_symbol = "openvr_library_init"
 
 [libraries]
 
-x11.64="res://addons/godot-openvr/bin/x11/libgodot_openvr.so"
-windows.64="res://addons/godot-openvr/bin/win64/libgodot_openvr.dll"
-osx.64="res://addons/godot-openvr/bin/osx/libgodot_openvr.dylib"
+x11.64.debug="res://addons/godot-openvr/bin/x11/libgodot_openvr_debug.so"
+x11.64.release="res://addons/godot-openvr/bin/x11/libgodot_openvr_release.so"
+windows.64.debug="res://addons/godot-openvr/bin/win64/libgodot_openvr_debug.dll"
+windows.64.release="res://addons/godot-openvr/bin/win64/libgodot_openvr_release.dll"
 
 [dependencies]
 
