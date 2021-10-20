@@ -353,11 +353,12 @@ void XRInterfaceOpenVR::_commit_views(const RID &p_render_target, const Rect2 &p
 	RenderingDevice *rendering_device = rendering_server->get_rendering_device();
 	ERR_FAIL_NULL(rendering_device);
 
+	vr::VRCompositor()->SubmitExplicitTimingData();
 	// FIX ME - We're not getting the correct RID here
 	RID texture = get_render_target_texture(p_render_target);
 	uint64_t image = rendering_device->get_driver_resource(RenderingDevice::DRIVER_RESOURCE_VULKAN_IMAGE, texture, 0);
 	uint32_t format = rendering_device->get_driver_resource(RenderingDevice::DRIVER_RESOURCE_VULKAN_IMAGE_NATIVE_TEXTURE_FORMAT, texture, 0);
-
+	
 	// and now sent to OpenVR...
 	if (image != 0 && format != 0 && ovr->is_initialised()) {
 		// Submit to SteamVR
@@ -383,7 +384,6 @@ void XRInterfaceOpenVR::_commit_views(const RID &p_render_target, const Rect2 &p
 		vulkan_data_left.m_unArrayIndex = 0;
 
 		vr::Texture_t texture_left = { &vulkan_data_left, vr::TextureType_Vulkan, vr::ColorSpace_Gamma };
-		vr::VRCompositor()->SubmitExplicitTimingData();
 		vr::VRCompositor()->Submit(vr::Eye_Left, &texture_left, &bounds, vr::Submit_VulkanTextureWithArrayData);
 
 		vr::VRVulkanTextureArrayData_t vulkan_data_right;
