@@ -206,6 +206,7 @@ bool XRInterfaceOpenVR::_initialize() {
 		ovr->get_recommended_rendertarget_size(&width, &height);
 
 		xr_server->set_primary_interface(this);
+		vr::VRCompositor()->SetExplicitTimingMode(vr::VRCompositorTimingMode_Explicit_ApplicationPerformsPostPresentHandoff);
 	}
 
 	// and return our result
@@ -382,6 +383,7 @@ void XRInterfaceOpenVR::_commit_views(const RID &p_render_target, const Rect2 &p
 		vulkan_data_left.m_unArrayIndex = 0;
 
 		vr::Texture_t texture_left = { &vulkan_data_left, vr::TextureType_Vulkan, vr::ColorSpace_Gamma };
+		vr::VRCompositor()->SubmitExplicitTimingData();
 		vr::VRCompositor()->Submit(vr::Eye_Left, &texture_left, &bounds, vr::Submit_VulkanTextureWithArrayData);
 
 		vr::VRVulkanTextureArrayData_t vulkan_data_right;
@@ -401,6 +403,7 @@ void XRInterfaceOpenVR::_commit_views(const RID &p_render_target, const Rect2 &p
 
 		vr::Texture_t texture_right = { &vulkan_data_right, vr::TextureType_Vulkan, vr::ColorSpace_Gamma };
 		vr::VRCompositor()->Submit(vr::Eye_Right, &texture_right, &bounds, vr::Submit_VulkanTextureWithArrayData);
+		vr::VRCompositor()->PostPresentHandoff();
 	}
 }
 
