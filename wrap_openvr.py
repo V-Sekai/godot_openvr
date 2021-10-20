@@ -59,4 +59,4 @@ for match in fullClassPattern.finditer(header):
     
     newHeader = newHeader.replace(fullClass, table + newClass)
 
-open('openvr.h', 'w', newline='\n').write(newHeader)
+open('openvr/headers/openvr.h', 'w', newline='\n').write(newHeader)
