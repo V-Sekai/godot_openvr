@@ -82,6 +82,10 @@ if env['platform'] == 'windows':
         opts.Update(env)
         # env = env.Clone(tools=['mingw']) 
         env.Append(CCFLAGS = ['-std=c++17'])
+        env.Append(LINKFLAGS=[ 
+            '-static-libgcc',
+            '-static-libstdc++',
+        ])
 
     elif host_platform == 'linux' or host_platform == 'osx':
         # Cross-compilation using MinGW
@@ -110,7 +114,6 @@ if env['platform'] == 'windows':
         # Native or cross-compilation using MinGW
         env.Append(CCFLAGS=['-g', '-O3', '-std=c++17', '-Wwrite-strings'])
         env.Append(LINKFLAGS=[
-            '--static',
             '-static-libgcc',
             '-static-libstdc++',
         ])
