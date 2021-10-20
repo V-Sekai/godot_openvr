@@ -295,6 +295,7 @@ Transform3D XRInterfaceOpenVR::_get_transform_for_view(int64_t p_view, const Tra
 	Transform3D hmd_transform = ovr->get_hmd_transform();
 	hmd_transform.origin *= world_scale;
 
+	vr::VRCompositor()->SubmitExplicitTimingData();
 	return p_cam_transform * xr_server->get_reference_frame() * hmd_transform * transform_for_view;
 }
 
@@ -353,7 +354,6 @@ void XRInterfaceOpenVR::_commit_views(const RID &p_render_target, const Rect2 &p
 	RenderingDevice *rendering_device = rendering_server->get_rendering_device();
 	ERR_FAIL_NULL(rendering_device);
 
-	vr::VRCompositor()->SubmitExplicitTimingData();
 	// FIX ME - We're not getting the correct RID here
 	RID texture = get_render_target_texture(p_render_target);
 	uint64_t image = rendering_device->get_driver_resource(RenderingDevice::DRIVER_RESOURCE_VULKAN_IMAGE, texture, 0);
