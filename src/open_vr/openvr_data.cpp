@@ -445,20 +445,6 @@ void openvr_data::process() {
 			vr::VRInput()->UpdateActionState(active_action_sets.data(), sizeof(vr::VRActiveActionSet_t), active_action_set_count);
 		}
 	}
-
-	if (get_application_type() == openvr_data::OpenVRApplicationType::OVERLAY) {
-		openvr_data::OpenVRTrackingUniverse tracking_universe = get_tracking_universe();
-		if (tracking_universe == openvr_data::OpenVRTrackingUniverse::SEATED) {
-			vr::VRSystem()->GetDeviceToAbsoluteTrackingPose(vr::TrackingUniverseSeated, 0.0, tracked_device_pose, vr::k_unMaxTrackedDeviceCount);
-		} else if (tracking_universe == openvr_data::OpenVRTrackingUniverse::STANDING) {
-			vr::VRSystem()->GetDeviceToAbsoluteTrackingPose(vr::TrackingUniverseStanding, 0.0, tracked_device_pose, vr::k_unMaxTrackedDeviceCount);
-		} else {
-			vr::VRSystem()->GetDeviceToAbsoluteTrackingPose(vr::TrackingUniverseRawAndUncalibrated, 0.0, tracked_device_pose, vr::k_unMaxTrackedDeviceCount);
-		}
-	} else {
-		vr::VRCompositor()->WaitGetPoses(tracked_device_pose, vr::k_unMaxTrackedDeviceCount, nullptr, 0);
-	}
-	update_poses();
 }
 
 ////////////////////////////////////////////////////////////////
@@ -1257,8 +1243,19 @@ void openvr_data::transform_from_bone(Transform3D &p_transform, const vr::VRBone
 	p_transform.origin = Vector3(p_bone_transform->position.v[0], p_bone_transform->position.v[1], p_bone_transform->position.v[2]);
 }
 
-void godot::openvr_data::get_last_poses() {
-	vr::VRCompositor()->GetLastPoses(tracked_device_pose, vr::k_unMaxTrackedDeviceCount, nullptr, 0);
+void godot::openvr_data::get_last_poses() {	
+	if (get_application_type() == openvr_data::OpenVRApplicationType::OVERLAY) {
+		openvr_data::OpenVRTrackingUniverse tracking_universe = get_tracking_universe();
+		if (tracking_universe == openvr_data::OpenVRTrackingUniverse::SEATED) {
+			vr::VRSystem()->GetDeviceToAbsoluteTrackingPose(vr::TrackingUniverseSeated, 0.0, tracked_device_pose, vr::k_unMaxTrackedDeviceCount);
+		} else if (tracking_universe == openvr_data::OpenVRTrackingUniverse::STANDING) {
+			vr::VRSystem()->GetDeviceToAbsoluteTrackingPose(vr::TrackingUniverseStanding, 0.0, tracked_device_pose, vr::k_unMaxTrackedDeviceCount);
+		} else {
+			vr::VRSystem()->GetDeviceToAbsoluteTrackingPose(vr::TrackingUniverseRawAndUncalibrated, 0.0, tracked_device_pose, vr::k_unMaxTrackedDeviceCount);
+		}
+	} else {
+		vr::VRCompositor()->WaitGetPoses(tracked_device_pose, vr::k_unMaxTrackedDeviceCount, nullptr, 0);
+	}
 }
 
 void godot::openvr_data::update_poses() {
