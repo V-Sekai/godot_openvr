@@ -152,9 +152,7 @@ private:
 
 	void load_texture(TextureType p_type, vr::TextureID_t p_texture_id, godot::Ref<godot::StandardMaterial3D> p_material);
 	bool _load_texture(texture_material *p_texture);
-	
-	// update our poses structure, this tracks our controllers
-	vr::TrackedDevicePose_t tracked_device_pose[vr::k_unMaxTrackedDeviceCount];
+
 public:
 	vr::IVRSystem *hmd; // make this private?
 
@@ -195,8 +193,6 @@ public:
 
 	bool play_area_available() const;
 	const godot::Vector3 *get_play_area() const;
-
-	void get_last_poses();
 
 	////////////////////////////////////////////////////////////////
 	// action set

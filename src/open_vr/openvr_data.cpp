@@ -385,6 +385,9 @@ void openvr_data::update_play_area() {
 }
 
 void openvr_data::process() {
+	// we need timing info for one or two things..
+	uint64_t msec = Time::get_singleton()->get_ticks_msec();
+
 	// check our model loading in reverse
 	for (int i = (int)load_models.size() - 1; i >= 0; i--) {
 		if (_load_render_model(&load_models[i])) {
@@ -446,6 +449,9 @@ void openvr_data::process() {
 		}
 	}
 
+	// update our poses structure, this tracks our controllers
+	vr::TrackedDevicePose_t tracked_device_pose[vr::k_unMaxTrackedDeviceCount];
+
 	if (get_application_type() == openvr_data::OpenVRApplicationType::OVERLAY) {
 		openvr_data::OpenVRTrackingUniverse tracking_universe = get_tracking_universe();
 		if (tracking_universe == openvr_data::OpenVRTrackingUniverse::SEATED) {
@@ -458,7 +464,41 @@ void openvr_data::process() {
 	} else {
 		vr::VRCompositor()->WaitGetPoses(tracked_device_pose, vr::k_unMaxTrackedDeviceCount, nullptr, 0);
 	}
-	get_last_poses();
+
+	// update trackers and joysticks
+	for (uint32_t i = 0; i < vr::k_unMaxTrackedDeviceCount; i++) {
+		// update tracker
+		if (i == 0) {
+			// TODO make a positional tracker for this too?
+			if (tracked_device_pose[i].bPoseIsValid) {
+				// store our HMD transform
+				hmd_transform = transform_from_matrix(&tracked_device_pose[i].mDeviceToAbsoluteTracking, 1.0);
+				if (head_tracker.is_valid()) {
+					Vector3 linear_velocity(tracked_device_pose[i].vVelocity.v[0], tracked_device_pose[i].vVelocity.v[1], tracked_device_pose[i].vVelocity.v[2]);
+					Vector3 angular_velocity(tracked_device_pose[i].vAngularVelocity.v[0], tracked_device_pose[i].vAngularVelocity.v[1], tracked_device_pose[i].vAngularVelocity.v[2]);
+
+					head_tracker->set_pose("default", hmd_transform, linear_velocity, angular_velocity);
+				}
+			}
+		} else if (tracked_devices[i].tracker.is_valid()) {
+			// We'll expose our main transform we got from WaitGetPoses as the default pose
+			if (tracked_device_pose[i].bPoseIsValid) {
+				// update our location and orientation
+				Transform3D transform = transform_from_matrix(&tracked_device_pose[i].mDeviceToAbsoluteTracking, 1.0);
+				Vector3 linear_velocity(tracked_device_pose[i].vVelocity.v[0], tracked_device_pose[i].vVelocity.v[1], tracked_device_pose[i].vVelocity.v[2]);
+				Vector3 angular_velocity(tracked_device_pose[i].vAngularVelocity.v[0], tracked_device_pose[i].vAngularVelocity.v[1], tracked_device_pose[i].vAngularVelocity.v[2]);
+
+				tracked_devices[i].tracker->set_pose("default", transform, linear_velocity, angular_velocity);
+			} else {
+				tracked_devices[i].tracker->invalidate_pose("default");
+			}
+
+			// for our fixed actions we'll hardcode checking our state
+			process_device_actions(&tracked_devices[i], msec);
+		}
+	}
+
+	// TODO add in updating skeleton data
 }
 
 ////////////////////////////////////////////////////////////////
@@ -1255,45 +1295,4 @@ void openvr_data::transform_from_bone(Transform3D &p_transform, const vr::VRBone
 
 	p_transform.basis = Basis(q);
 	p_transform.origin = Vector3(p_bone_transform->position.v[0], p_bone_transform->position.v[1], p_bone_transform->position.v[2]);
-}
-
-void godot::openvr_data::get_last_poses() {
-	// we need timing info for one or two things..
-	uint64_t msec = Time::get_singleton()->get_ticks_msec();
-	vr::VRCompositor()->GetLastPoses(tracked_device_pose, vr::k_unMaxTrackedDeviceCount, nullptr, 0);
-	
-	// update trackers and joysticks
-	for (uint32_t i = 0; i < vr::k_unMaxTrackedDeviceCount; i++) {
-		// update tracker
-		if (i == 0) {
-			// TODO make a positional tracker for this too?
-			if (tracked_device_pose[i].bPoseIsValid) {
-				// store our HMD transform
-				hmd_transform = transform_from_matrix(&tracked_device_pose[i].mDeviceToAbsoluteTracking, 1.0);
-				if (head_tracker.is_valid()) {
-					Vector3 linear_velocity(tracked_device_pose[i].vVelocity.v[0], tracked_device_pose[i].vVelocity.v[1], tracked_device_pose[i].vVelocity.v[2]);
-					Vector3 angular_velocity(tracked_device_pose[i].vAngularVelocity.v[0], tracked_device_pose[i].vAngularVelocity.v[1], tracked_device_pose[i].vAngularVelocity.v[2]);
-
-					head_tracker->set_pose("default", hmd_transform, linear_velocity, angular_velocity);
-				}
-			}
-		} else if (tracked_devices[i].tracker.is_valid()) {
-			// We'll expose our main transform we got from WaitGetPoses as the default pose
-			if (tracked_device_pose[i].bPoseIsValid) {
-				// update our location and orientation
-				Transform3D transform = transform_from_matrix(&tracked_device_pose[i].mDeviceToAbsoluteTracking, 1.0);
-				Vector3 linear_velocity(tracked_device_pose[i].vVelocity.v[0], tracked_device_pose[i].vVelocity.v[1], tracked_device_pose[i].vVelocity.v[2]);
-				Vector3 angular_velocity(tracked_device_pose[i].vAngularVelocity.v[0], tracked_device_pose[i].vAngularVelocity.v[1], tracked_device_pose[i].vAngularVelocity.v[2]);
-
-				tracked_devices[i].tracker->set_pose("default", transform, linear_velocity, angular_velocity);
-			} else {
-				tracked_devices[i].tracker->invalidate_pose("default");
-			}
-
-			// for our fixed actions we'll hardcode checking our state
-			process_device_actions(&tracked_devices[i], msec);
-		}
-	}
-
-	// TODO add in updating skeleton data
 }
