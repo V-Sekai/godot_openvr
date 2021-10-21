@@ -259,6 +259,7 @@ Vector2 XRInterfaceOpenVR::_get_render_target_size() {
 		size.y = height;
 	}
 
+	vr::VRCompositor()->SubmitExplicitTimingData();
 	return size;
 }
 
@@ -384,7 +385,6 @@ void XRInterfaceOpenVR::_commit_views(const RID &p_render_target, const Rect2 &p
 		vulkan_data_left.m_unArrayIndex = 0;
 
 		vr::Texture_t texture_left = { &vulkan_data_left, vr::TextureType_Vulkan, vr::ColorSpace_Gamma };
-		vr::VRCompositor()->SubmitExplicitTimingData();
 		vr::VRCompositor()->Submit(vr::Eye_Left, &texture_left, &bounds, vr::Submit_VulkanTextureWithArrayData);
 
 		vr::VRVulkanTextureArrayData_t vulkan_data_right;
