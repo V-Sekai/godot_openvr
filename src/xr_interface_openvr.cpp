@@ -292,10 +292,10 @@ Transform3D XRInterfaceOpenVR::_get_transform_for_view(int64_t p_view, const Tra
 
 	Transform3D transform_for_view = ovr->get_eye_to_head_transform(p_view, world_scale);
 
+	ovr->get_last_poses();
 	Transform3D hmd_transform = ovr->get_hmd_transform();
 	hmd_transform.origin *= world_scale;
 
-	vr::VRCompositor()->SubmitExplicitTimingData();
 	return p_cam_transform * xr_server->get_reference_frame() * hmd_transform * transform_for_view;
 }
 
@@ -384,6 +384,7 @@ void XRInterfaceOpenVR::_commit_views(const RID &p_render_target, const Rect2 &p
 		vulkan_data_left.m_unArrayIndex = 0;
 
 		vr::Texture_t texture_left = { &vulkan_data_left, vr::TextureType_Vulkan, vr::ColorSpace_Gamma };
+		vr::VRCompositor()->SubmitExplicitTimingData();
 		vr::VRCompositor()->Submit(vr::Eye_Left, &texture_left, &bounds, vr::Submit_VulkanTextureWithArrayData);
 
 		vr::VRVulkanTextureArrayData_t vulkan_data_right;
