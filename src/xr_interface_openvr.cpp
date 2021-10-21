@@ -259,7 +259,6 @@ Vector2 XRInterfaceOpenVR::_get_render_target_size() {
 		size.y = height;
 	}
 
-	vr::VRCompositor()->SubmitExplicitTimingData();
 	return size;
 }
 
@@ -293,8 +292,6 @@ Transform3D XRInterfaceOpenVR::_get_transform_for_view(int64_t p_view, const Tra
 
 	Transform3D transform_for_view = ovr->get_eye_to_head_transform(p_view, world_scale);
 
-	ovr->get_last_poses();
-	ovr->update_poses();
 	Transform3D hmd_transform = ovr->get_hmd_transform();
 	hmd_transform.origin *= world_scale;
 
@@ -406,6 +403,9 @@ void XRInterfaceOpenVR::_commit_views(const RID &p_render_target, const Rect2 &p
 		vr::Texture_t texture_right = { &vulkan_data_right, vr::TextureType_Vulkan, vr::ColorSpace_Gamma };
 		vr::VRCompositor()->Submit(vr::Eye_Right, &texture_right, &bounds, vr::Submit_VulkanTextureWithArrayData);
 		vr::VRCompositor()->PostPresentHandoff();
+		ovr->get_last_poses();
+		ovr->update_poses();
+		vr::VRCompositor()->SubmitExplicitTimingData();
 	}
 }
 
