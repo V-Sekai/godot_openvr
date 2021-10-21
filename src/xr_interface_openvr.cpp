@@ -293,10 +293,10 @@ Transform3D XRInterfaceOpenVR::_get_transform_for_view(int64_t p_view, const Tra
 
 	Transform3D transform_for_view = ovr->get_eye_to_head_transform(p_view, world_scale);
 
+	ovr->get_last_poses();
 	Transform3D hmd_transform = ovr->get_hmd_transform();
 	hmd_transform.origin *= world_scale;
 
-	vr::VRCompositor()->SubmitExplicitTimingData();
 	return p_cam_transform * xr_server->get_reference_frame() * hmd_transform * transform_for_view;
 }
 
