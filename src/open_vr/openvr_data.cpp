@@ -458,7 +458,7 @@ void openvr_data::process() {
 	} else {
 		vr::VRCompositor()->WaitGetPoses(tracked_device_pose, vr::k_unMaxTrackedDeviceCount, nullptr, 0);
 	}
-	get_last_poses();
+	update_poses();
 }
 
 ////////////////////////////////////////////////////////////////
@@ -1258,10 +1258,13 @@ void openvr_data::transform_from_bone(Transform3D &p_transform, const vr::VRBone
 }
 
 void godot::openvr_data::get_last_poses() {
+	vr::VRCompositor()->GetLastPoses(tracked_device_pose, vr::k_unMaxTrackedDeviceCount, nullptr, 0);
+}
+
+void godot::openvr_data::update_poses() {
 	// we need timing info for one or two things..
 	uint64_t msec = Time::get_singleton()->get_ticks_msec();
-	vr::VRCompositor()->GetLastPoses(tracked_device_pose, vr::k_unMaxTrackedDeviceCount, nullptr, 0);
-	
+
 	// update trackers and joysticks
 	for (uint32_t i = 0; i < vr::k_unMaxTrackedDeviceCount; i++) {
 		// update tracker

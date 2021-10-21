@@ -294,6 +294,7 @@ Transform3D XRInterfaceOpenVR::_get_transform_for_view(int64_t p_view, const Tra
 	Transform3D transform_for_view = ovr->get_eye_to_head_transform(p_view, world_scale);
 
 	ovr->get_last_poses();
+	ovr->update_poses();
 	Transform3D hmd_transform = ovr->get_hmd_transform();
 	hmd_transform.origin *= world_scale;
 
@@ -359,7 +360,7 @@ void XRInterfaceOpenVR::_commit_views(const RID &p_render_target, const Rect2 &p
 	RID texture = get_render_target_texture(p_render_target);
 	uint64_t image = rendering_device->get_driver_resource(RenderingDevice::DRIVER_RESOURCE_VULKAN_IMAGE, texture, 0);
 	uint32_t format = rendering_device->get_driver_resource(RenderingDevice::DRIVER_RESOURCE_VULKAN_IMAGE_NATIVE_TEXTURE_FORMAT, texture, 0);
-	
+
 	// and now sent to OpenVR...
 	if (image != 0 && format != 0 && ovr->is_initialised()) {
 		// Submit to SteamVR
