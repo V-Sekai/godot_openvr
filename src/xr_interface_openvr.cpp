@@ -413,7 +413,7 @@ void XRInterfaceOpenVR::_commit_views(const RID &p_render_target, const Rect2 &p
 // next frame.
 void XRInterfaceOpenVR::_process() {
 	if (ovr != nullptr && ovr->is_initialised()) {
-		vr::VRCompositor()->PostPresentHandoff()
+		vr::VRCompositor()->PostPresentHandoff();
 		// Call process on our ovr system.
 		ovr->process();
 		ovr->wait_get_poses();
