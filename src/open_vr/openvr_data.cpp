@@ -1253,7 +1253,7 @@ void godot::openvr_data::get_last_poses() {
 		} else {
 			vr::VRSystem()->GetDeviceToAbsoluteTrackingPose(vr::TrackingUniverseRawAndUncalibrated, 0.0, tracked_device_pose, vr::k_unMaxTrackedDeviceCount);
 		}
-	} else {
+	} else {		
 		vr::VRCompositor()->WaitGetPoses(tracked_device_pose, vr::k_unMaxTrackedDeviceCount, nullptr, 0);
 	}
 }

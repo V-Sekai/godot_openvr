@@ -403,9 +403,6 @@ void XRInterfaceOpenVR::_commit_views(const RID &p_render_target, const Rect2 &p
 		vr::Texture_t texture_right = { &vulkan_data_right, vr::TextureType_Vulkan, vr::ColorSpace_Gamma };
 		vr::VRCompositor()->Submit(vr::Eye_Right, &texture_right, &bounds, vr::Submit_VulkanTextureWithArrayData);
 		vr::VRCompositor()->PostPresentHandoff();
-		ovr->get_last_poses();
-		ovr->update_poses();
-		vr::VRCompositor()->SubmitExplicitTimingData();
 	}
 }
 
@@ -415,7 +412,10 @@ void XRInterfaceOpenVR::_commit_views(const RID &p_render_target, const Rect2 &p
 // The HMD pose is used right away but tracker poses are used
 // next frame.
 void XRInterfaceOpenVR::_process() {
-	if (ovr != nullptr && ovr->is_initialised()) {
+	if (ovr != nullptr && ovr->is_initialised()) {	
+		vr::VRCompositor()->SubmitExplicitTimingData();	
+		ovr->get_last_poses();
+		ovr->update_poses();
 		// Call process on our ovr system.
 		ovr->process();
 	}
