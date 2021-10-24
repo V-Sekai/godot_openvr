@@ -197,7 +197,7 @@ public:
 	bool play_area_available() const;
 	const godot::Vector3 *get_play_area() const;
 
-	void get_last_poses();
+	void wait_get_poses();
 	void update_poses();
 
 	////////////////////////////////////////////////////////////////
