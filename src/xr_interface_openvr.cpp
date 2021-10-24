@@ -206,7 +206,7 @@ bool XRInterfaceOpenVR::_initialize() {
 		ovr->get_recommended_rendertarget_size(&width, &height);
 
 		xr_server->set_primary_interface(this);
-		vr::VRCompositor()->SetExplicitTimingMode(vr::Explicit_ApplicationPerformsPostPresentHandoff);
+		vr::VRCompositor()->SetExplicitTimingMode(vr::VRCompositorTimingMode_Explicit_ApplicationPerformsPostPresentHandoff);
 	}
 
 	// and return our result
