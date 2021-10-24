@@ -360,6 +360,8 @@ void XRInterfaceOpenVR::_commit_views(const RID &p_render_target, const Rect2 &p
 
 	// and now sent to OpenVR...
 	if (image != 0 && format != 0 && ovr->is_initialised()) {
+		ovr->wait_get_poses();
+		ovr->update_poses();
 		// Submit to SteamVR
 		vr::VRTextureBounds_t bounds;
 		bounds.uMin = 0.0f;
@@ -414,8 +416,6 @@ void XRInterfaceOpenVR::_commit_views(const RID &p_render_target, const Rect2 &p
 void XRInterfaceOpenVR::_process() {
 	if (ovr != nullptr && ovr->is_initialised()) {
 		vr::VRCompositor()->PostPresentHandoff();
-		ovr->wait_get_poses();
-		ovr->update_poses();
 		// Call process on our ovr system.
 		ovr->process();
 	}
