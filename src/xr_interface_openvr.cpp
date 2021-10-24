@@ -412,12 +412,12 @@ void XRInterfaceOpenVR::_commit_views(const RID &p_render_target, const Rect2 &p
 // The HMD pose is used right away but tracker poses are used
 // next frame.
 void XRInterfaceOpenVR::_process() {
-	if (ovr != nullptr && ovr->is_initialised()) {	
-		vr::VRCompositor()->SubmitExplicitTimingData();	
-		ovr->get_last_poses();
-		ovr->update_poses();
+	if (ovr != nullptr && ovr->is_initialised()) {
 		// Call process on our ovr system.
 		ovr->process();
+		ovr->get_last_poses();
+		ovr->update_poses();
+		vr::VRCompositor()->SubmitExplicitTimingData();
 	}
 }
 
