@@ -274,6 +274,8 @@ Transform3D XRInterfaceOpenVR::_get_camera_transform() {
 	if (ovr == nullptr || xr_server == nullptr) {
 		return Transform3D();
 	}
+	ovr->wait_get_poses();
+	ovr->update_poses();
 
 	Transform3D hmd_transform = ovr->get_hmd_transform();
 	hmd_transform.origin *= xr_server->get_world_scale();
@@ -360,8 +362,6 @@ void XRInterfaceOpenVR::_commit_views(const RID &p_render_target, const Rect2 &p
 
 	// and now sent to OpenVR...
 	if (image != 0 && format != 0 && ovr->is_initialised()) {
-		ovr->wait_get_poses();
-		ovr->update_poses();
 		// Submit to SteamVR
 		vr::VRTextureBounds_t bounds;
 		bounds.uMin = 0.0f;
