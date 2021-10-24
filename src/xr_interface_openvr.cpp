@@ -265,8 +265,6 @@ Vector2 XRInterfaceOpenVR::_get_render_target_size() {
 ////////////////////////////////////////////////////////////////
 // Informs Godot how many views are required
 int64_t XRInterfaceOpenVR::_get_view_count() {
-	ovr->wait_get_poses();
-	ovr->update_poses();
 	vr::VRCompositor()->SubmitExplicitTimingData();
 	return 2;
 }
@@ -405,6 +403,8 @@ void XRInterfaceOpenVR::_commit_views(const RID &p_render_target, const Rect2 &p
 
 		vr::Texture_t texture_right = { &vulkan_data_right, vr::TextureType_Vulkan, vr::ColorSpace_Gamma };
 		vr::VRCompositor()->Submit(vr::Eye_Right, &texture_right, &bounds, vr::Submit_VulkanTextureWithArrayData);
+		ovr->wait_get_poses();
+		ovr->update_poses();
 	}
 }
 
