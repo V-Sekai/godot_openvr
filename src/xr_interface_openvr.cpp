@@ -402,7 +402,7 @@ void XRInterfaceOpenVR::_commit_views(const RID &p_render_target, const Rect2 &p
 
 		vr::Texture_t texture_right = { &vulkan_data_right, vr::TextureType_Vulkan, vr::ColorSpace_Gamma };
 		vr::VRCompositor()->Submit(vr::Eye_Right, &texture_right, &bounds, vr::Submit_VulkanTextureWithArrayData);
-		vr::VRCompositor()->PostPresentHandoff();
+		vr::VRCompositor()->SubmitExplicitTimingData();
 	}
 }
 
@@ -413,11 +413,11 @@ void XRInterfaceOpenVR::_commit_views(const RID &p_render_target, const Rect2 &p
 // next frame.
 void XRInterfaceOpenVR::_process() {
 	if (ovr != nullptr && ovr->is_initialised()) {
+		vr::VRCompositor()->PostPresentHandoff();
 		// Call process on our ovr system.
 		ovr->process();
 		ovr->get_last_poses();
 		ovr->update_poses();
-		vr::VRCompositor()->SubmitExplicitTimingData();
 	}
 }
 
