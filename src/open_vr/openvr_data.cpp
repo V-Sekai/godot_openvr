@@ -1243,7 +1243,7 @@ void openvr_data::transform_from_bone(Transform3D &p_transform, const vr::VRBone
 	p_transform.origin = Vector3(p_bone_transform->position.v[0], p_bone_transform->position.v[1], p_bone_transform->position.v[2]);
 }
 
-void godot::openvr_data::get_last_poses() {	
+void godot::openvr_data::wait_get_poses() {	
 	if (get_application_type() == openvr_data::OpenVRApplicationType::OVERLAY) {
 		openvr_data::OpenVRTrackingUniverse tracking_universe = get_tracking_universe();
 		if (tracking_universe == openvr_data::OpenVRTrackingUniverse::SEATED) {
