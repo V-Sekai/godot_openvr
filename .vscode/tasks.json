@@ -15,17 +15,11 @@
             ]
         },
         {
-            "label": "Wrap openvr.h",
-            "type": "shell",
-            "command": "python3 wrap_openvr.py",
-        },
-        {
             "label": "Build gdextension openvr",
             "type": "shell",
             "command": "scons platform=windows target=release -j8 use_mingw=yes",
             "dependsOn": [
-                "Build godot-cpp",
-                "Wrap openvr.h"
+                "Build godot-cpp"
             ],
             "problemMatcher": [
                 "$gcc"
