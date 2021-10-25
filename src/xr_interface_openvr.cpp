@@ -331,9 +331,6 @@ PackedFloat64Array XRInterfaceOpenVR::_get_projection_for_view(int64_t p_view, d
 ////////////////////////////////////////////////////////////////
 // This is called after we render a frame so we can send the render output to OpenVR
 void XRInterfaceOpenVR::_commit_views(const RID &p_render_target, const Rect2 &p_screen_rect) {
-	ovr->wait_get_poses();
-	ovr->update_poses();
-
 	// TODO rewrite this once we have proper access to members again
 	// and implement source rect blit
 
