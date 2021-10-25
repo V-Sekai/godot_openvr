@@ -176,6 +176,8 @@ public:
 	void get_recommended_rendertarget_size(uint32_t *p_width, uint32_t *p_height);
 	godot::Transform3D get_eye_to_head_transform(int p_eye, double p_world_scale = 1.0);
 
+	void pre_render_update();
+
 	// interact with tracking info
 	const godot::Transform3D get_hmd_transform() const;
 
@@ -196,9 +198,6 @@ public:
 
 	bool play_area_available() const;
 	const godot::Vector3 *get_play_area() const;
-
-	void wait_get_poses();
-	void update_poses();
 
 	////////////////////////////////////////////////////////////////
 	// action set

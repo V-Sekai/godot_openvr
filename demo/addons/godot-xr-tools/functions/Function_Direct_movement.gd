@@ -108,7 +108,7 @@ func _physics_process(delta):
 		player_height = player_radius
 
 	collision_shape.shape.radius = player_radius
-	collision_shape.shape.height = player_height - (player_radius * 2.0)
+	collision_shape.shape.height = player_height
 	collision_shape.transform.origin.y = (player_height / 2.0)
 
 	# We should be the child or the controller on which the teleport is implemented

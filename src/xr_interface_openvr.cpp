@@ -288,6 +288,11 @@ Transform3D XRInterfaceOpenVR::_get_transform_for_view(int64_t p_view, const Tra
 		return Transform3D();
 	}
 
+	// TODO this needs to get a proper entry point, we're just cheating here...
+	if (p_view == 0) {
+		ovr->pre_render_update();
+	}
+
 	double world_scale = xr_server->get_world_scale();
 
 	Transform3D transform_for_view = ovr->get_eye_to_head_transform(p_view, world_scale);

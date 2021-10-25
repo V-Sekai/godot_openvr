@@ -9,14 +9,12 @@
 [ext_resource type="PackedScene" path="res://misc/Box.tscn" id="8"]
 [ext_resource type="Script" path="res://player/right_controller.gd" id="8_oqay4"]
 [ext_resource type="PackedScene" path="res://addons/godot-xr-tools/functions/Function_Teleport.tscn" id="9"]
-[ext_resource type="PackedScene" path="res://addons/godot-xr-tools/functions/Function_Direct_movement.tscn" id="10"]
+[ext_resource type="PackedScene" uid="uid://hkoqglc13fsw" path="res://addons/godot-xr-tools/functions/Function_Direct_movement.tscn" id="10"]
 [ext_resource type="PackedScene" path="res://misc/Cup.tscn" id="11"]
 [ext_resource type="PackedScene" path="res://addons/godot-xr-tools/functions/Function_Pickup.tscn" id="12"]
 [ext_resource type="PackedScene" path="res://addons/godot-xr-tools/functions/Function_pointer.tscn" id="14"]
 [ext_resource type="PackedScene" uid="uid://dhcsolk3uwmy6" path="res://addons/godot-xr-tools/objects/Viewport_2D_in_3D.tscn" id="15"]
 [ext_resource type="PackedScene" uid="uid://bvl8eat4blx3g" path="res://player/ButtonStates.tscn" id="16"]
-[ext_resource type="PackedScene" uid="uid://cn68xh0b8hwey" path="res://addons/godot-openvr/scenes/ovr_left_hand.tscn" id="20"]
-[ext_resource type="PackedScene" uid="uid://ct2goe0k8twk5" path="res://addons/godot-openvr/scenes/ovr_right_hand.tscn" id="21"]
 
 [sub_resource type="QuadMesh" id="QuadMesh_2ndrj"]
 size = Vector2(0.3, 0.1)
@@ -86,6 +84,12 @@ mesh = SubResource( "QuadMesh_2ndrj" )
 surface_material_override/0 = SubResource( "StandardMaterial3D_ux7rk" )
 script = null
 
+[node name="TestCube" type="MeshInstance3D" parent="OVRFirstPerson/Left_Hand" index="1"]
+mesh = SubResource( "BoxMesh_jxy6n" )
+skeleton = NodePath("../../Right_Hand")
+surface_material_override/0 = null
+script = null
+
 [node name="Function_Direct_movement" parent="OVRFirstPerson/Right_Hand" index="0" instance=ExtResource( "10" )]
 camera = NodePath("../../XRCamera3D")
 
@@ -98,6 +102,12 @@ script = null
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.5, 1.25, 0)
 tracker = &"left_hand"
 pose = &"aim"
+script = null
+
+[node name="TestCube" type="MeshInstance3D" parent="OVRFirstPerson/aim_left_hand"]
+mesh = SubResource( "BoxMesh_ynikn" )
+skeleton = NodePath("../../aim_right_hand")
+surface_material_override/0 = null
 script = null
 
 [node name="Function_Teleport" parent="OVRFirstPerson/aim_left_hand" instance=ExtResource( "9" )]
@@ -113,26 +123,18 @@ tracker = &"right_hand"
 pose = &"aim"
 script = ExtResource( "8_oqay4" )
 
+[node name="TestCube" type="MeshInstance3D" parent="OVRFirstPerson/aim_right_hand"]
+mesh = SubResource( "BoxMesh_ynikn" )
+surface_material_override/0 = null
+script = null
+
 [node name="Viewport2Din3D" parent="OVRFirstPerson/aim_right_hand" instance=ExtResource( "15" )]
 transform = Transform3D(0.960079, 0.211887, -0.182625, -0.163522, 0.954819, 0.248155, 0.226955, -0.208384, 0.95135, 0.167837, 0, 0)
 screen_size = Vector2(0.3, 0.2)
 scene = ExtResource( "16" )
 collision_layer = 2048
 
-[node name="TestCube" type="MeshInstance3D" parent="OVRFirstPerson/aim_right_hand"]
-mesh = SubResource( "BoxMesh_ynikn" )
-surface_material_override/0 = null
-script = null
-
 [node name="Function_Pickup" parent="OVRFirstPerson/aim_right_hand" instance=ExtResource( "12" )]
-
-[node name="ovr_left_hand" parent="OVRFirstPerson" instance=ExtResource( "20" )]
-transform = Transform3D(-1, 0, -3.25841e-07, 0, 1, 0, 3.25841e-07, 0, -1, -0.5, 1.25, 0)
-visible = false
-
-[node name="ovr_right_hand" parent="OVRFirstPerson" instance=ExtResource( "21" )]
-transform = Transform3D(-1, 0, -3.25841e-07, 0, 1, 0, 3.25841e-07, 0, -1, 0.5, 1.25, 0)
-visible = false
 
 [node name="Floor" type="StaticBody3D" parent="."]
 collision_layer = 2

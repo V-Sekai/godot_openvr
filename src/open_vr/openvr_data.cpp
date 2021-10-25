@@ -385,6 +385,9 @@ void openvr_data::update_play_area() {
 }
 
 void openvr_data::process() {
+	// we need timing info for one or two things..
+	uint64_t msec = Time::get_singleton()->get_ticks_msec();
+
 	// check our model loading in reverse
 	for (int i = (int)load_models.size() - 1; i >= 0; i--) {
 		if (_load_render_model(&load_models[i])) {
@@ -445,6 +448,58 @@ void openvr_data::process() {
 			vr::VRInput()->UpdateActionState(active_action_sets.data(), sizeof(vr::VRActiveActionSet_t), active_action_set_count);
 		}
 	}
+
+	// update our poses structure, this tracks our controllers
+	vr::TrackedDevicePose_t tracked_device_pose[vr::k_unMaxTrackedDeviceCount];
+
+	if (get_application_type() == openvr_data::OpenVRApplicationType::OVERLAY) {
+		openvr_data::OpenVRTrackingUniverse tracking_universe = get_tracking_universe();
+		if (tracking_universe == openvr_data::OpenVRTrackingUniverse::SEATED) {
+			vr::VRSystem()->GetDeviceToAbsoluteTrackingPose(vr::TrackingUniverseSeated, 0.0, tracked_device_pose, vr::k_unMaxTrackedDeviceCount);
+		} else if (tracking_universe == openvr_data::OpenVRTrackingUniverse::STANDING) {
+			vr::VRSystem()->GetDeviceToAbsoluteTrackingPose(vr::TrackingUniverseStanding, 0.0, tracked_device_pose, vr::k_unMaxTrackedDeviceCount);
+		} else {
+			vr::VRSystem()->GetDeviceToAbsoluteTrackingPose(vr::TrackingUniverseRawAndUncalibrated, 0.0, tracked_device_pose, vr::k_unMaxTrackedDeviceCount);
+		}
+	} else {
+		// Get the predicted game poses for this frame when we called WaitGetPoses right before rendering
+		vr::VRCompositor()->GetLastPoses(nullptr, 0, tracked_device_pose, vr::k_unMaxTrackedDeviceCount);
+	}
+
+	// update trackers and joysticks
+	for (uint32_t i = 0; i < vr::k_unMaxTrackedDeviceCount; i++) {
+		// update tracker
+		if (i == 0) {
+			// TODO make a positional tracker for this too?
+			if (tracked_device_pose[i].bPoseIsValid) {
+				// store our HMD transform
+				hmd_transform = transform_from_matrix(&tracked_device_pose[i].mDeviceToAbsoluteTracking, 1.0);
+				if (head_tracker.is_valid()) {
+					Vector3 linear_velocity(tracked_device_pose[i].vVelocity.v[0], tracked_device_pose[i].vVelocity.v[1], tracked_device_pose[i].vVelocity.v[2]);
+					Vector3 angular_velocity(tracked_device_pose[i].vAngularVelocity.v[0], tracked_device_pose[i].vAngularVelocity.v[1], tracked_device_pose[i].vAngularVelocity.v[2]);
+
+					head_tracker->set_pose("default", hmd_transform, linear_velocity, angular_velocity);
+				}
+			}
+		} else if (tracked_devices[i].tracker.is_valid()) {
+			// We'll expose our main transform we got from GetLastPoses as the default pose
+			if (tracked_device_pose[i].bPoseIsValid) {
+				// update our location and orientation
+				Transform3D transform = transform_from_matrix(&tracked_device_pose[i].mDeviceToAbsoluteTracking, 1.0);
+				Vector3 linear_velocity(tracked_device_pose[i].vVelocity.v[0], tracked_device_pose[i].vVelocity.v[1], tracked_device_pose[i].vVelocity.v[2]);
+				Vector3 angular_velocity(tracked_device_pose[i].vAngularVelocity.v[0], tracked_device_pose[i].vAngularVelocity.v[1], tracked_device_pose[i].vAngularVelocity.v[2]);
+
+				tracked_devices[i].tracker->set_pose("default", transform, linear_velocity, angular_velocity);
+			} else {
+				tracked_devices[i].tracker->invalidate_pose("default");
+			}
+
+			// for our fixed actions we'll hardcode checking our state
+			process_device_actions(&tracked_devices[i], msec);
+		}
+	}
+
+	// TODO add in updating skeleton data
 }
 
 ////////////////////////////////////////////////////////////////
@@ -570,6 +625,16 @@ Transform3D openvr_data::get_eye_to_head_transform(int p_view, double p_world_sc
 	vr::HmdMatrix34_t matrix = hmd->GetEyeToHeadTransform(p_view == 0 ? vr::Eye_Left : vr::Eye_Right);
 
 	return transform_from_matrix(&matrix, p_world_scale);
+}
+
+void openvr_data::pre_render_update() {
+	if (get_application_type() != openvr_data::OpenVRApplicationType::OVERLAY) {
+		vr::TrackedDevicePose_t tracked_device_pose[vr::k_unMaxTrackedDeviceCount];
+		vr::VRCompositor()->WaitGetPoses(tracked_device_pose, vr::k_unMaxTrackedDeviceCount, nullptr, 0);
+
+		// Update our hmd_transform already, we will use this when rendering but it's too late to update it in our node tree
+		hmd_transform = transform_from_matrix(&tracked_device_pose[0].mDeviceToAbsoluteTracking, 1.0);
+	}
 }
 
 ////////////////////////////////////////////////////////////////

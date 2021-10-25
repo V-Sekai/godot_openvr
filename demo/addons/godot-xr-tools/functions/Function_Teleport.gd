@@ -257,7 +257,7 @@ func _physics_process(delta):
 					color = cant_teleport_color
 				
 				# check our axis to see if we need to rotate
-				teleport_rotation += (delta * controller.get_joystick_axis(0) * -4.0)
+				teleport_rotation += (delta * controller.get_axis("primary").x * -4.0)
 				
 				# update target and colour
 				var target_basis = Basis()
