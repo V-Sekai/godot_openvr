@@ -1,6 +1,8 @@
 extends Node
 
-enum MOVEMENT_TYPE { MOVE_AND_ROTATE, MOVE_AND_STRAFE }
+class MOVEMENT_TYPE:
+	const MOVE_AND_ROTATE = 0
+	const MOVE_AND_STRAFE = 1
 
 # Is this active?
 @export var enabled = true:
@@ -37,7 +39,7 @@ enum MOVEMENT_TYPE { MOVE_AND_ROTATE, MOVE_AND_STRAFE }
 @export var drag_factor = 0.1
 
 # fly mode and strafe movement management
-@export var move_type: MOVEMENT_TYPE = MOVEMENT_TYPE.MOVE_AND_ROTATE
+@export var move_type: int = MOVEMENT_TYPE.MOVE_AND_ROTATE
 @export var fly_enabled = true
 @export var fly_move: String = "trigger_click"
 @export var fly_activate: String = "grip_click"

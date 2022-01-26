@@ -66,7 +66,8 @@ public:
 	virtual Transform3D _get_transform_for_view(int64_t p_view, const Transform3D &p_cam_transform) override;
 	virtual PackedFloat64Array _get_projection_for_view(int64_t p_view, double p_aspect, double p_z_near, double p_z_far) override;
 
-	virtual void _commit_views(const RID &p_render_target, const Rect2 &p_screen_rect) override;
+	virtual void _post_draw_viewport(const RID &p_render_target, const Rect2 &p_screen_rect) override;
+	virtual bool _pre_draw_viewport(const RID &p_render_target) override;
 
 	virtual void _process() override;
 	virtual void _notification(int64_t what) override;

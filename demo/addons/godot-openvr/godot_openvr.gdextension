@@ -6,8 +6,8 @@ entry_symbol = "openvr_library_init"
 
 linux.64.debug="res://addons/godot-openvr/bin/x11/libgodot_openvr_debug.so"
 linux.64.release="res://addons/godot-openvr/bin/x11/libgodot_openvr_release.so"
-windows.64.debug="res://addons/godot-openvr/bin/win64/libgodot_openvr_debug.dll"
-windows.64.release="res://addons/godot-openvr/bin/win64/libgodot_openvr_release.dll"
+windows.64.debug="res://addons/godot-openvr/bin/win64/libgodot_openvr.dll"
+windows.64.release="res://addons/godot-openvr/bin/win64/libgodot_openvr.dll"
 
 [dependencies]
 

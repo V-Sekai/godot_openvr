@@ -214,7 +214,12 @@ func _physics_process(delta):
 						var start_pos = target_global_origin + (Vector3.UP * 0.5 * player_height)
 						var end_pos = target_global_origin - (Vector3.UP * 1.1 * player_height)
 						
-						var intersects = state.intersect_ray(start_pos, end_pos, [], collision_mask)
+						var result_param : PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.new()
+						result_param.from = start_pos
+						result_param.to = end_pos
+						result_param.exclude = []
+						result_param.collision_mask = collision_mask
+						var intersects = state.intersect_ray(result_param)
 						if intersects.is_empty():
 							is_on_floor = false
 						else:
