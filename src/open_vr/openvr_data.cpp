@@ -478,7 +478,7 @@ void openvr_data::process() {
 					Vector3 linear_velocity(tracked_device_pose[i].vVelocity.v[0], tracked_device_pose[i].vVelocity.v[1], tracked_device_pose[i].vVelocity.v[2]);
 					Vector3 angular_velocity(tracked_device_pose[i].vAngularVelocity.v[0], tracked_device_pose[i].vAngularVelocity.v[1], tracked_device_pose[i].vAngularVelocity.v[2]);
 
-					head_tracker->set_pose("default", hmd_transform, linear_velocity, angular_velocity);
+					head_tracker->set_pose("default", hmd_transform, linear_velocity, angular_velocity, XRPose::XR_TRACKING_CONFIDENCE_HIGH);
 				}
 			}
 		} else if (tracked_devices[i].tracker.is_valid()) {
@@ -489,7 +489,7 @@ void openvr_data::process() {
 				Vector3 linear_velocity(tracked_device_pose[i].vVelocity.v[0], tracked_device_pose[i].vVelocity.v[1], tracked_device_pose[i].vVelocity.v[2]);
 				Vector3 angular_velocity(tracked_device_pose[i].vAngularVelocity.v[0], tracked_device_pose[i].vAngularVelocity.v[1], tracked_device_pose[i].vAngularVelocity.v[2]);
 
-				tracked_devices[i].tracker->set_pose("default", transform, linear_velocity, angular_velocity);
+				tracked_devices[i].tracker->set_pose("default", transform, linear_velocity, angular_velocity, XRPose::XR_TRACKING_CONFIDENCE_HIGH);
 			} else {
 				tracked_devices[i].tracker->invalidate_pose("default");
 			}
@@ -972,7 +972,7 @@ void openvr_data::process_device_actions(tracked_device *p_device, uint64_t p_ms
 				Vector3 linear_velocity(data.pose.vVelocity.v[0], data.pose.vVelocity.v[1], data.pose.vVelocity.v[2]);
 				Vector3 angular_velocity(data.pose.vAngularVelocity.v[0], data.pose.vAngularVelocity.v[1], data.pose.vAngularVelocity.v[2]);
 
-				p_device->tracker->set_pose(pose.name, transform, linear_velocity, angular_velocity);
+				p_device->tracker->set_pose(pose.name, transform, linear_velocity, angular_velocity, XRPose::XR_TRACKING_CONFIDENCE_HIGH);
 			}
 		} else {
 			p_device->tracker->invalidate_pose(pose.name);
