@@ -1,9 +1,10 @@
-[gd_scene load_steps=5 format=3 uid="uid://c1lwn8ckewvro"]
+[gd_scene load_steps=6 format=3 uid="uid://c1lwn8ckewvro"]
 
 [ext_resource type="PackedScene" path="res://addons/godot-openvr/scenes/ovr_shader_cache.tscn" id="1"]
 [ext_resource type="PackedScene" uid="uid://858xxqdsip2m" path="res://addons/godot-openvr/scenes/ovr_controller.tscn" id="2"]
 [ext_resource type="Script" path="res://addons/godot-openvr/scenes/ovr_main.gd" id="3"]
 [ext_resource type="Script" path="res://addons/godot-openvr/scenes/ovr_hud_anchor.gd" id="3_ow4cb"]
+[ext_resource path="res://addons/godot-openvr/scenes/framecounter_in_3d.tscn" type="PackedScene" id="4_fps3d"]
 
 [node name="OVRFirstPerson" type="XROrigin3D"]
 script = ExtResource( "3" )
@@ -18,6 +19,9 @@ script = null
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.8, 0)
 script = ExtResource( "3_ow4cb" )
 camera = NodePath("../XRCamera3D")
+
+[node name="FPS" parent="HUD_Anchor" instance=ExtResource( "4_fps3d" )]
+transform = Transform( 0.923552, -0.383473, 0, -0.0754683, -0.181757, -0.980443, 0.375974, 0.90549, -0.196802, 0.331706, 0.188307, -0.889295 )
 
 [node name="Left_Hand" parent="." instance=ExtResource( "2" )]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.5, 1.25, 0)

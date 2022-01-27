@@ -275,7 +275,7 @@ Transform3D XRInterfaceOpenVR::_get_camera_transform() {
 		return Transform3D();
 	}
 
-	Transform3D hmd_transform = ovr->get_hmd_transform();
+	Transform3D hmd_transform = ovr->get_hmd_transform(true);
 	hmd_transform.origin *= xr_server->get_world_scale();
 
 	return xr_server->get_reference_frame() * hmd_transform;
@@ -297,7 +297,7 @@ Transform3D XRInterfaceOpenVR::_get_transform_for_view(int64_t p_view, const Tra
 
 	Transform3D transform_for_view = ovr->get_eye_to_head_transform(p_view, world_scale);
 
-	Transform3D hmd_transform = ovr->get_hmd_transform();
+	Transform3D hmd_transform = ovr->get_hmd_transform(false);
 	hmd_transform.origin *= world_scale;
 
 	return p_cam_transform * xr_server->get_reference_frame() * hmd_transform * transform_for_view;

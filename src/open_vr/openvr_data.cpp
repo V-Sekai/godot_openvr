@@ -451,6 +451,7 @@ void openvr_data::process() {
 
 	// update our poses structure, this tracks our controllers
 	vr::TrackedDevicePose_t tracked_device_pose[vr::k_unMaxTrackedDeviceCount];
+	vr::TrackedDevicePose_t tracked_device_next_pose[vr::k_unMaxTrackedDeviceCount];
 
 	if (get_application_type() == openvr_data::OpenVRApplicationType::OVERLAY) {
 		openvr_data::OpenVRTrackingUniverse tracking_universe = get_tracking_universe();
@@ -461,9 +462,12 @@ void openvr_data::process() {
 		} else {
 			vr::VRSystem()->GetDeviceToAbsoluteTrackingPose(vr::TrackingUniverseRawAndUncalibrated, 0.0, tracked_device_pose, vr::k_unMaxTrackedDeviceCount);
 		}
+		for (int i = 0; i < vr::k_unMaxTrackedDeviceCount; i++) {
+			tracked_device_next_pose[i] = tracked_device_pose[i];
+		}
 	} else {
 		// Get the predicted game poses for this frame when we called WaitGetPoses right before rendering
-		vr::VRCompositor()->GetLastPoses(nullptr, 0, tracked_device_pose, vr::k_unMaxTrackedDeviceCount);
+		vr::VRCompositor()->GetLastPoses(nullptr, 0, tracked_device_next_pose, vr::k_unMaxTrackedDeviceCount);
 	}
 
 	// update trackers and joysticks
@@ -474,6 +478,10 @@ void openvr_data::process() {
 			if (tracked_device_pose[i].bPoseIsValid) {
 				// store our HMD transform
 				hmd_transform = transform_from_matrix(&tracked_device_pose[i].mDeviceToAbsoluteTracking, 1.0);
+				if (tracked_device_next_pose[i].bPoseIsValid) {
+					// store our HMD transform
+					hmd_transform_next = transform_from_matrix(&tracked_device_next_pose[i].mDeviceToAbsoluteTracking, 1.0);
+				}
 				if (head_tracker.is_valid()) {
 					Vector3 linear_velocity(tracked_device_pose[i].vVelocity.v[0], tracked_device_pose[i].vVelocity.v[1], tracked_device_pose[i].vVelocity.v[2]);
 					Vector3 angular_velocity(tracked_device_pose[i].vAngularVelocity.v[0], tracked_device_pose[i].vAngularVelocity.v[1], tracked_device_pose[i].vAngularVelocity.v[2]);
@@ -483,9 +491,9 @@ void openvr_data::process() {
 			}
 		} else if (tracked_devices[i].tracker.is_valid()) {
 			// We'll expose our main transform we got from GetLastPoses as the default pose
-			if (tracked_device_pose[i].bPoseIsValid) {
+			if (tracked_device_next_pose[i].bPoseIsValid) {
 				// update our location and orientation
-				Transform3D transform = transform_from_matrix(&tracked_device_pose[i].mDeviceToAbsoluteTracking, 1.0);
+				Transform3D transform = transform_from_matrix(&tracked_device_next_pose[i].mDeviceToAbsoluteTracking, 1.0);
 				Vector3 linear_velocity(tracked_device_pose[i].vVelocity.v[0], tracked_device_pose[i].vVelocity.v[1], tracked_device_pose[i].vVelocity.v[2]);
 				Vector3 angular_velocity(tracked_device_pose[i].vAngularVelocity.v[0], tracked_device_pose[i].vAngularVelocity.v[1], tracked_device_pose[i].vAngularVelocity.v[2]);
 
@@ -1031,8 +1039,12 @@ void openvr_data::set_default_action_set(const String p_name) {
 	}
 }
 
-const godot::Transform3D openvr_data::get_hmd_transform() const {
-	return hmd_transform;
+const godot::Transform3D openvr_data::get_hmd_transform(bool p_next_frame) const {
+	if (p_next_frame) {
+		return hmd_transform_next;
+	} else {
+		return hmd_transform;
+	}
 }
 
 ////////////////////////////////////////////////////////////////

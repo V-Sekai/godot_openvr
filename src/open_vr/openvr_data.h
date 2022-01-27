@@ -107,6 +107,7 @@ private:
 	// tracked devices
 	Ref<XRPositionalTracker> head_tracker;
 	godot::Transform3D hmd_transform;
+	godot::Transform3D hmd_transform_next;
 
 	struct tracked_device {
 		Ref<XRPositionalTracker> tracker;
@@ -179,7 +180,7 @@ public:
 	void pre_render_update();
 
 	// interact with tracking info
-	const godot::Transform3D get_hmd_transform() const;
+	const godot::Transform3D get_hmd_transform(bool p_next_frame = false) const;
 
 	////////////////////////////////////////////////////////////////
 	// overlay
