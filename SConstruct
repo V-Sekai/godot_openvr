@@ -1,5 +1,6 @@
 #!python
 import os
+import sys
 
 # Reads variables from an optional file.
 customs = ['../custom.py']
@@ -16,6 +17,7 @@ opts.AddVariables(
     PathVariable('target_path', 'The path where the lib is installed.', 'demo/addons/godot-openvr/bin/'),
     PathVariable('target_name', 'The library name.', 'libgodot_openvr', PathVariable.PathAccept),
 )
+opts.Add(BoolVariable('use_mingw', "Cross-compile for Windows", 'no'))
 opts.Add(BoolVariable('use_llvm', "Use the LLVM / Clang compiler", 'no'))
 opts.Add(EnumVariable('bits', "CPU architecture", '64', ['32', '64']))
 
@@ -48,32 +50,76 @@ if env['platform'] == 'windows':
     env['target_path'] += 'win' + env['bits'] + '/'
     godot_cpp_library += '.windows'
     platform_dir = 'win' + str(env['bits'])
-    if not env['use_llvm']:
-        # This makes sure to keep the session environment variables on windows,
-        # that way you can run scons in a vs 2017 prompt and it will find all the required tools
-        env.Append(ENV = os.environ)
-
-        env.Append(CPPDEFINES=["WIN32", "_WIN32", "_WINDOWS", "_CRT_SECURE_NO_WARNINGS", "TYPED_METHOD_BIND"])
-        env.Append(CCFLAGS=["-W3", "-GR"])
-        env.Append(CXXFLAGS=["-std:c++17"])
-        if env['target'] in ('debug', 'd'):
-            env.Append(CPPDEFINES=["_DEBUG"])
-            env.Append(CCFLAGS = ['-EHsc', '-MDd', '-ZI', '-FS'])
-            env.Append(LINKFLAGS = ['-DEBUG'])
-        else:
-            env.Append(CCFLAGS = ['-O2', '-EHsc', '-DNDEBUG', '-MD'])
+    # Try to detect the host platform automatically.
+    # This is used if no `platform` argument is passed
+    if sys.platform.startswith('linux'):
+        host_platform = 'linux'
+    elif sys.platform == 'darwin':
+        host_platform = 'osx'
+    elif sys.platform == 'win32' or sys.platform == 'msys':
+        host_platform = 'windows'
     else:
-        # untested
-        env.Append(CPPDEFINES=["WIN32", "_WIN32", "_WINDOWS", "_CRT_SECURE_NO_WARNINGS"])
-        env.Append(CCFLAGS=["-W3", "-GR"])
-        env.Append(CXXFLAGS=["-std:c++17"])
-        if env['target'] in ('debug', 'd'):
-            env.Append(CCFLAGS = ['-fPIC', '-g3','-Og'])
-        else:
-            env.Append(CCFLAGS = ['-fPIC', '-g','-O3'])
+        raise ValueError(
+            'Could not detect host_platform automatically'
+        )
 
-    openvr_dll_target = env['target_path'] + "openvr_api.dll"
-    openvr_dll_source = env['openvr_path'] + "bin/win" + str(env['bits']) + "/openvr_api.dll"
+    if host_platform == 'windows'and not env["use_mingw"]:
+        if not env['use_llvm']:
+            # This makes sure to keep the session environment variables on windows,
+            # that way you can run scons in a vs 2017 prompt and it will find all the required tools
+            env.Append(ENV = os.environ)
+        # MSVC
+        env.Append(CCFLAGS = ['-DWIN32', '-D_WIN32', '-D_WINDOWS', '-W3', '-GR', '-D_CRT_SECURE_NO_WARNINGS', '/std:c++17'])
+        env.Append(CPPDEFINES=["TYPED_METHOD_BIND"])
+        env.Append(LINKFLAGS=["/WX"])
+        if env['target'] in ('debug', 'd'):
+            env.Append(CCFLAGS = ['-EHsc', '-D_DEBUG', '-MDd', '-Zi', '-FS'])
+            env.Append(LINKFLAGS = ['-DEBUG:FULL'])
+        else:
+            env.Append(CCFLAGS = ['-O2', '-EHsc', '-DNDEBUG', '-MD', '-Zi', '-FS'])
+            env.Append(LINKFLAGS = ['-DEBUG:FULL'])
+    elif host_platform == "windows" and env["use_mingw"]:
+        # Don't Clone the environment. Because otherwise, SCons will pick up msvc stuff.
+        env = Environment(ENV=os.environ, tools=["mingw"])
+        opts.Update(env)
+        # env = env.Clone(tools=['mingw']) 
+        env.Append(CCFLAGS = ['-std=c++17'])
+        env.Append(LINKFLAGS=[ 
+            '-static-libgcc',
+            '-static-libstdc++',
+        ])
+
+    elif host_platform == 'linux' or host_platform == 'osx':
+        # Cross-compilation using MinGW
+        if env['bits'] == '64':
+            mingw_prefix = 'x86_64-w64-mingw32-'
+        elif env['bits'] == '32':
+            mingw_prefix = 'i686-w64-mingw32-'
+        if env["use_llvm"]:
+            env["CC"] = mingw_prefix + "clang"
+            env["AS"] = mingw_prefix + "as"
+            env["CXX"] = mingw_prefix + "clang++"
+            env["AR"] = mingw_prefix + "ar"
+            env["RANLIB"] = mingw_prefix + "ranlib"
+            env["LINK"] = mingw_prefix + "clang++"
+            env.Append(LINKFLAGS=["-Wl,-pdb="])
+            env.Append(CCFLAGS=["-gcodeview"])
+        else:
+            env["CC"] = mingw_prefix + "gcc"
+            env["AS"] = mingw_prefix + "as"
+            env["CXX"] = mingw_prefix + "g++"
+            env["AR"] = mingw_prefix + "gcc-ar"
+            env["RANLIB"] = mingw_prefix + "gcc-ranlib"
+            env["LINK"] = mingw_prefix + "g++"
+        env["SHCCFLAGS"] = '$CCFLAGS'
+
+        # Native or cross-compilation using MinGW
+        env.Append(CCFLAGS=['-g', '-O3', '-std=c++17', '-Wwrite-strings'])
+        env.Append(LINKFLAGS=[
+            '-static-libgcc',
+            '-static-libstdc++',
+        ])
+        env['target_name'] += ".dll"
 
 # no longer supported by OpenVR
 #elif env['platform'] == 'osx':
@@ -127,11 +173,13 @@ env.Append(CPPPATH=[
 env.Append(LIBPATH=[godot_cpp_path + 'bin/'])
 env.Append(LIBS=[godot_cpp_library])
 
-if (os.name == "nt" and os.getenv("VCINSTALLDIR")):
+if (os.name == "nt" and os.getenv("VCINSTALLDIR")) and not env["use_mingw"]:
     env.Append(LIBPATH=[env['openvr_path'] + 'lib/' + platform_dir])
     env.Append(LINKFLAGS=['openvr_api.lib'])
-elif env['platform'] == "osx":
-    env.Append(LINKFLAGS = ['-F' + env['openvr_path'] + 'bin/osx32', '-framework', 'OpenVR'])
+elif env['platform'] == "osx" and not env["use_mingw"]:
+    env.Append(LINKFLAGS = ['-F' + env['openvr_path'] + 'bin/osx64', '-framework', 'OpenVR'])
+elif env['platform'] == "windows" and env['use_llvm']:
+    env.Append(LINKFLAGS=[env['openvr_path'] + 'lib/' + platform_dir + '/openvr_api.lib'])
 else:
     env.Append(LIBPATH=[env['openvr_path'] + 'lib/' + platform_dir])
     env.Append(LIBS=['openvr_api'])
@@ -141,11 +189,6 @@ sources = Glob('src/*.c')
 sources += Glob('src/*.cpp')
 sources += Glob('src/*/*.c')
 sources += Glob('src/*/*.cpp')
-
-if env['target'] in ('debug', 'd'):
-    env['target_name'] += "_debug"
-else:
-    env['target_name'] += "_release"
 
 # Build our library
 library = env.SharedLibrary(target=env['target_path'] + env['target_name'], source=sources)
