@@ -53,8 +53,12 @@ submodule_initialized = False
 env = SConscript("godot-cpp/SConstruct", {"env": env, "customs": customs})
 
 env.Append(CPPPATH=["src/", "src/open_vr", "openvr/headers"])
-env.Append(LIBPATH=["openvr/lib/win64"])
-env.Append(LINKFLAGS=['openvr_api.lib'])
+if env["platform"] == "windows":
+    env.Append(LIBPATH=["openvr/lib/win64"])
+    env.Append(LINKFLAGS=['openvr_api.lib'])
+elif env["platform"] == "linux":
+    env.Append(LIBPATH=["openvr/lib/linux64"])
+    env.Append(LINKFLAGS=['-lopenvr_api'])
 sources = Glob("src/*.cpp") + Glob("src/open_vr/*.cpp")
 
 if env["target"] in ["editor", "template_debug"]:
