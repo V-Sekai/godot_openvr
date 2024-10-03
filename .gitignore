@@ -19,3 +19,5 @@ Thumbs.db
 *.ilk
 *.dll
 demo/addons/godot-xr-tools
+
+src/gen/
