@@ -46,7 +46,7 @@ jobs:
 
     - name: Run the build for godot_openvr
       run: |
-        scons platform=${{ matrix.platform }} -j2 target=release bits=64
+        scons platform=${{ matrix.platform }} -j2 target=template_release
 
     - name: Upload build files (artifacts) (Linux)
       uses: actions/upload-artifact@v3
